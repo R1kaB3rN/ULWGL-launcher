@@ -9,6 +9,7 @@ from tomllib import TOMLDecodeError
 from shutil import rmtree
 import re
 import ulwgl_plugins
+import logging
 
 
 class TestGameLauncher(unittest.TestCase):
@@ -51,6 +52,7 @@ class TestGameLauncher(unittest.TestCase):
         self.test_exe = self.test_file + "/" + "foo"
         Path(self.test_file).mkdir(exist_ok=True)
         Path(self.test_exe).touch()
+        logging.basicConfig(level=logging.INFO)
 
     def tearDown(self):
         """Unset environment variables and delete test files after each test."""
@@ -95,6 +97,7 @@ class TestGameLauncher(unittest.TestCase):
             # Ubuntu sources this variable and will be added once Game Drive is enabled
             # Just test the case without it
             if "LD_LIBRARY_PATH" in os.environ:
+                logging.info("Env: " + os.environ["LD_LIBRARY_PATH"])
                 os.environ.pop("LD_LIBRARY_PATH")
 
             # Game drive
