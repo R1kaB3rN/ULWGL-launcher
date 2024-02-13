@@ -91,13 +91,14 @@ class TestGameLauncher(unittest.TestCase):
             ulwgl_run.setup_pfx(self.env["WINEPREFIX"])
             # Env
             ulwgl_run.set_env(self.env, args)
+
+            # Ubuntu sources this variable and will be added once Game Drive is enabled
+            # Just test the case without it
+            if "LD_LIBRARY_PATH" in os.environ:
+                os.environ.pop("LD_LIBRARY_PATH")
+
             # Game drive
             result_gamedrive = ulwgl_plugins.enable_steam_game_drive(self.env)
-
-        # Ubuntu sources this variable and will be added once Game Drive is enabled
-        # Just test the case without it
-        if "LD_LIBRARY_PATH" in os.environ:
-            os.environ.pop("LD_LIBRARY_PATH")
 
         for key, val in self.env.items():
             os.environ[key] = val
