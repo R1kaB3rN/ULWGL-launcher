@@ -17,6 +17,7 @@ from socket import AF_INET, SOCK_DGRAM, socket
 from pwd import getpwuid
 from umu_plugins import set_env_toml
 from ctypes.util import find_library
+from shutil import which
 from umu_consts import (
     PROTON_VERBS,
     DEBUG_FORMAT,
@@ -285,6 +286,7 @@ def build_command(
 ) -> list[str]:
     """Build the command to be executed."""
     verb: str = env["PROTON_VERB"]
+    flatpak_bin: str = which("flatpak-spawn")
 
     # Raise an error if the _v2-entry-point cannot be found
     if not local.joinpath("umu").is_file():
@@ -299,6 +301,46 @@ def build_command(
         err: str = "The following file was not found in PROTONPATH: proton"
         raise FileNotFoundError(err)
 
+    # Flatpak
+    # When running inside a Flatpak, breakout of it
+    if FLATPAK_ID and flatpak_bin:
+        log.debug("Will execute flatpaks-spawn for command")
+        if opts:
+            command.extend(
+                flatpak_bin,
+                *[f"--env={var}={os.environ.get(var)}" for var in os.environ],
+                root.joinpath("reaper").as_posix(),
+                f"UMU_ID={os.environ.get('UMU_ID')}",
+                "--",
+                local.joinpath("umu").as_posix(),
+                "--verb",
+                verb,
+                "--",
+                Path(os.environ.get("PROTONPATH")).joinpath("proton").as_posix(),
+                verb,
+                os.environ.get("EXE"),
+                *opts,
+            )
+            return command
+        command.extend(
+            [
+                flatpak_bin,
+                *[f"--env={var}={os.environ.get(var)}" for var in os.environ],
+                root.joinpath("reaper").as_posix(),
+                f"UMU_ID={os.environ.get('UMU_ID')}",
+                "--",
+                local.joinpath("umu").as_posix(),
+                "--verb",
+                verb,
+                "--",
+                Path(os.environ.get("PROTONPATH")).joinpath("proton").as_posix(),
+                verb,
+                os.environ.get("EXE"),
+            ],
+        )
+        return command
+
+    # System package
     if opts:
         command.extend(
             [
