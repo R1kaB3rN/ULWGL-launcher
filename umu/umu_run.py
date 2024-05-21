@@ -319,6 +319,7 @@ def build_command(
             command.extend(
                 flatpak_bin,
                 *[f"--env={var}={os.environ.get(var)}" for var in os.environ],
+                "--host",
                 root.joinpath("reaper").as_posix(),
                 f"UMU_ID={os.environ.get('UMU_ID')}",
                 "--",
@@ -336,6 +337,7 @@ def build_command(
             [
                 flatpak_bin,
                 *[f"--env={var}={os.environ.get(var)}" for var in os.environ],
+                "--host",
                 root.joinpath("reaper").as_posix(),
                 f"UMU_ID={os.environ.get('UMU_ID')}",
                 "--",
