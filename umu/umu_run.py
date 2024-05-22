@@ -319,7 +319,7 @@ def build_command(
     # In this usage, it is assumed that a system umu-launcher is installed at /usr
     # NOTE: This usage is for debugging purposes
     if FLATPAK_ID and flatpak_bin and env.get("UMU_CONTAINER") == "0":
-        root = Path("/usr/share")
+        root = Path("/usr/share/umu")
         log.warning("Will execute flatpak-spawn")
         log.warning("Changing prefix: %s -> %s", root.parent, "/usr")
         log.warning("Assuming system umu-launcher is installed")
