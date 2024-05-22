@@ -86,6 +86,7 @@ umu-dist-install:
 	install -Dm 644 umu/umu_plugins.py   -t $(DESTDIR)$(DATADIR)/$(INSTALLDIR)
 	install -Dm 755 umu/umu_run.py       -t $(DESTDIR)$(DATADIR)/$(INSTALLDIR)
 	install -Dm 644 umu/umu_util.py      -t $(DESTDIR)$(DATADIR)/$(INSTALLDIR)
+	install -Dm 644 umu/umu_debug.py     -t $(DESTDIR)$(DATADIR)/$(INSTALLDIR)
 
 ifeq ($(FLATPAK), xtrue)
 umu-install: version-install umu-dist-install umu-bin-install
