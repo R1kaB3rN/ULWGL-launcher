@@ -329,7 +329,7 @@ def build_command(
                 *[
                     f"--env={var}={os.environ.get(var)}"
                     for var in os.environ
-                    if var in env or var.startswith("GAMESCOPE")
+                    if var in env or var.startswith("GAMESCOPE", "DISPLAY")
                 ],
                 "--host",
                 root.joinpath("reaper").as_posix(),
