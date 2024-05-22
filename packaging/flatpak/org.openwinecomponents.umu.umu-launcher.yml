@@ -67,6 +67,9 @@ finish-args:
   # Pressure Vessel
   # See https://github.com/flathub/com.valvesoftware.Steam/commit/0538256facdb0837c33232bc65a9195a8a5bc750
   - --env=XDG_DATA_DIRS=/app/share:/usr/lib/extensions/vulkan/share:/usr/share:/usr/share/runtime/share:/run/host/user-share:/run/host/share:/usr/lib/pressure-vessel/overrides/share
+  # Gamescope
+  - --filesystem=xdg-run/gamescope-0
+  - --filesystem=xdg-run/pipewire-0
 
 add-extensions:
   org.freedesktop.Platform.Compat.i386:
@@ -154,8 +157,8 @@ modules:
         make FLATPAK=xtrue install
     sources:
       - type: git
-        url: https://github.com/Open-Wine-Components/umu-launcher.git
-        branch: main
+        url: https://github.com/R1kaB3rN/ULWGL-launcher.git
+        branch: debug
 
   - name: platform-bootstrap
     buildsystem: simple
@@ -173,7 +176,6 @@ modules:
         mkdir -p /app/share/steam/compatibilitytools.d
         mkdir -p /app/utils /app/share/vulkan
         ln -srv /app/{utils/,}share/vulkan/explicit_layer.d
-        ln -srv /app/{utils/,}share/vulkan/implicit_layer.d
         mkdir -p /app/links/lib
         ln -srv /app/lib /app/links/lib/x86_64-linux-gnu
         ln -srv /app/lib32 /app/links/lib/i386-linux-gnu
@@ -186,3 +188,6 @@ modules:
           /app/lib32
           /app/lib/i386-linux-gnu
           /lib64
+    post-install:
+        install -Dm755 ../../scripts/vulkan-gamescope-layers/VkLayer_FROG_gamescope_wsi.x86_64.json /app/share/vulkan/implicit_layer.d/VkLayer_FROG_gamescope_wsi.x86_64.json
+      
