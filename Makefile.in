@@ -18,7 +18,7 @@ FLATPAK ?= xfalse
 
 .PHONY: all
 ifeq ($(FLATPAK), xtrue)
-all: version reaper umu umu-launcher vulkan-layer
+all: version reaper umu umu-launcher
 else
 all: version reaper umu umu-docs umu-launcher
 endif
@@ -134,14 +134,6 @@ reaper: $(OBJDIR)/.build-reaper
 reaper-install: reaper
 	$(info :: Installing reaper )
 	install -Dm 755 $(OBJDIR)/$</$< -t $(DESTDIR)$(DATADIR)/$(INSTALLDIR)
-
-
-.PHONY: vulkan-layer
-vulkan-layer: $(OBJDIR)/.vulkan-layer
-
-vulkan-layer-install: vulkan-layer
-	$(info :: Installing VkLayer_FROG_gamescope_wsi.x86_64 )
-	install -Dm 644 packaging/flatpak/scripts/vulkan-gamescope-layers/VkLayer_FROG_gamescope_wsi.x86_64.json -t $(DESTDIR)$(DATADIR)/vulkan/implicit_layer.d
 
 
 $(OBJDIR):
