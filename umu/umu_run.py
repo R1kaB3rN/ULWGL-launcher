@@ -312,9 +312,14 @@ def build_command(
         raise FileNotFoundError(err)
 
     # Flatpak
-    # When running inside a Flatpak, breakout of it
-    if FLATPAK_ID and flatpak_bin:
-        log.debug("Will execute flatpaks-spawn for command")
+    # When running inside a Flatpak, optionally, breakout of it
+    # In this usage, it is assumed that a system umu-launcher is installed at /usr
+    # NOTE: This usage is for debugging purposes
+    if FLATPAK_ID and flatpak_bin and env.get("UMU_CONTAINER") == "0":
+        root = Path("/usr/share")
+        log.warning("Will execute flatpak-spawn")
+        log.warning("Changing prefix: %s -> %s", root.parent, "/usr")
+        log.warning("Assuming system umu-launcher is installed")
         if opts:
             command.extend(
                 flatpak_bin,
@@ -412,6 +417,7 @@ def main() -> int:  # noqa: D103
         "UMU_ID": "",
         "ULWGL_ID": "",
         "UMU_ZENITY": "",
+        "UMU_CONTAINER": "",
     }
     command: list[str] = []
     opts: list[str] = None
