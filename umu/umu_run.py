@@ -319,14 +319,14 @@ def build_command(
     # In this usage, it is assumed that a system umu-launcher is installed at /usr
     # NOTE: This usage is for debugging purposes
     if FLATPAK_ID and flatpak_bin and env.get("UMU_CONTAINER") == "0":
-        root = Path("/usr/share/umu")
         log.warning("Will execute flatpak-spawn")
         log.warning("Changing prefix: %s -> %s", root.parent, "/usr")
         log.warning("Assuming system umu-launcher is installed")
+        root = Path("/usr/share/umu")
         if opts:
             command.extend(
                 flatpak_bin,
-                *[f"--env={var}={os.environ.get(var)}" for var in os.environ],
+                *[f"--env={var}={os.environ.get(var)}" for var in env],
                 "--host",
                 root.joinpath("reaper").as_posix(),
                 f"UMU_ID={os.environ.get('UMU_ID')}",
@@ -344,7 +344,7 @@ def build_command(
         command.extend(
             [
                 flatpak_bin,
-                *[f"--env={var}={os.environ.get(var)}" for var in os.environ],
+                *[f"--env={var}={os.environ.get(var)}" for var in env],
                 "--host",
                 root.joinpath("reaper").as_posix(),
                 f"UMU_ID={os.environ.get('UMU_ID')}",
