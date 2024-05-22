@@ -326,7 +326,11 @@ def build_command(
         if opts:
             command.extend(
                 flatpak_bin,
-                *[f"--env={var}={os.environ.get(var)}" for var in env],
+                *[
+                    f"--env={var}={os.environ.get(var)}"
+                    for var in os.environ
+                    if var in env or var.startswith("GAMESCOPE")
+                ],
                 "--host",
                 root.joinpath("reaper").as_posix(),
                 f"UMU_ID={os.environ.get('UMU_ID')}",
@@ -344,7 +348,11 @@ def build_command(
         command.extend(
             [
                 flatpak_bin,
-                *[f"--env={var}={os.environ.get(var)}" for var in env],
+                *[
+                    f"--env={var}={os.environ.get(var)}"
+                    for var in os.environ
+                    if var in env or var.startswith("GAMESCOPE")
+                ],
                 "--host",
                 root.joinpath("reaper").as_posix(),
                 f"UMU_ID={os.environ.get('UMU_ID')}",
