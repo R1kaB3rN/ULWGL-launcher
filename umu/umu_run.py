@@ -235,6 +235,9 @@ def set_env(
     env["STEAM_COMPAT_TOOL_PATHS"] = env["PROTONPATH"] + ":" + UMU_LOCAL.as_posix()
     env["STEAM_COMPAT_MOUNTS"] = env["STEAM_COMPAT_TOOL_PATHS"]
 
+    # Flatpak
+    env["UMU_CONTAINER"] = os.environ.get("UMU_CONTAINER") or ""
+
     # Game drive
     enable_steam_game_drive(env)
 
