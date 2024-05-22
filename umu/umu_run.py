@@ -17,7 +17,7 @@ from socket import AF_INET, SOCK_DGRAM, socket
 from pwd import getpwuid
 from umu_plugins import set_env_toml
 from ctypes.util import find_library
-from shutil import which
+from umu_debug import flatpak_run_in_host
 from umu_consts import (
     PROTON_VERBS,
     DEBUG_FORMAT,
@@ -299,7 +299,6 @@ def build_command(
 ) -> list[str]:
     """Build the command to be executed."""
     verb: str = env["PROTON_VERB"]
-    flatpak_bin: str = which("flatpak-spawn")
 
     # Raise an error if the _v2-entry-point cannot be found
     if not local.joinpath("umu").is_file():
@@ -314,61 +313,11 @@ def build_command(
         err: str = "The following file was not found in PROTONPATH: proton"
         raise FileNotFoundError(err)
 
-    # Flatpak
     # When running inside a Flatpak, optionally, breakout of it
-    # In this usage, it is assumed that a system umu-launcher is installed at /usr
     # NOTE: This usage is for debugging purposes
-    if FLATPAK_ID and flatpak_bin and env.get("UMU_CONTAINER") == "0":
-        log.warning("Will execute flatpak-spawn")
-        log.warning("Changing prefix: %s -> %s", root.parent, "/usr")
-        log.warning("Assuming system umu-launcher is installed")
-        root = Path("/usr/share/umu")
-        if opts:
-            command.extend(
-                flatpak_bin,
-                *[
-                    f"--env={var}={os.environ.get(var)}"
-                    for var in os.environ
-                    if var in env or var.startswith("GAMESCOPE", "DISPLAY")
-                ],
-                "--host",
-                root.joinpath("reaper").as_posix(),
-                f"UMU_ID={os.environ.get('UMU_ID')}",
-                "--",
-                local.joinpath("umu").as_posix(),
-                "--verb",
-                verb,
-                "--",
-                Path(os.environ.get("PROTONPATH")).joinpath("proton").as_posix(),
-                verb,
-                os.environ.get("EXE"),
-                *opts,
-            )
-            return command
-        command.extend(
-            [
-                flatpak_bin,
-                *[
-                    f"--env={var}={os.environ.get(var)}"
-                    for var in os.environ
-                    if var in env or var.startswith("GAMESCOPE")
-                ],
-                "--host",
-                root.joinpath("reaper").as_posix(),
-                f"UMU_ID={os.environ.get('UMU_ID')}",
-                "--",
-                local.joinpath("umu").as_posix(),
-                "--verb",
-                verb,
-                "--",
-                Path(os.environ.get("PROTONPATH")).joinpath("proton").as_posix(),
-                verb,
-                os.environ.get("EXE"),
-            ],
-        )
-        return command
+    if FLATPAK_PATH:
+        return flatpak_run_in_host(env, local, root, command, opts)
 
-    # System package
     if opts:
         command.extend(
             [
