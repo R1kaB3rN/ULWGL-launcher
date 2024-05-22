@@ -160,6 +160,16 @@ modules:
         url: https://github.com/R1kaB3rN/ULWGL-launcher.git
         branch: debug
 
+  - name: vulkan-layer
+    buildsystem: simple
+    builddir: true
+    build-commands:
+      - "install -Dm755 ./packaging/flatpak/scripts/vulkan-gamescope-layers/VkLayer_FROG_gamescope_wsi.x86_64.json /app/share/vulkan/implicit_layer.d/VkLayer_FROG_gamescope_wsi.x86_64.json"
+    sources:
+      - type: git
+        url: https://github.com/R1kaB3rN/ULWGL-launcher.git
+        branch: debug
+
   - name: platform-bootstrap
     buildsystem: simple
     build-commands:
@@ -188,6 +198,3 @@ modules:
           /app/lib32
           /app/lib/i386-linux-gnu
           /lib64
-    post-install:
-        install -Dm755 ../../scripts/vulkan-gamescope-layers/VkLayer_FROG_gamescope_wsi.x86_64.json /app/share/vulkan/implicit_layer.d/VkLayer_FROG_gamescope_wsi.x86_64.json
-      
