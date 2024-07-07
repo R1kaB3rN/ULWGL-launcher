@@ -640,6 +640,8 @@ def run_command(command: list[AnyPath]) -> int:
             preexec_fn=lambda: prctl(PR_SET_CHILD_SUBREAPER, 1, 0, 0, 0, 0),
             cwd=cwd,
         )
+
+    Path.home().joinpath(".Xauthority").touch(exist_ok=True)
     gamescope_baselayer_sequence = get_gamescope_baselayer_order()
 
     # Dont do window fuckery if we're not inside gamescope
