@@ -10,7 +10,7 @@ BINDIR      := $(PREFIX)/bin
 LIBDIR      := $(PREFIX)/lib
 DATADIR     := $(PREFIX)/share
 MANDIR      := $(DATADIR)/man
-PYTHONDIR   := $(shell $(PYTHON_INTERPRETER) -c "import site; print(site.getsitepackages()[0])")
+PYTHONDIR   := $(shell python -c "import site; print(site.getsitepackages()[0])")
 
 DESTDIR ?=
 USERINSTALL ?= xfalse
