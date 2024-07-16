@@ -3,7 +3,6 @@
 import os
 import sys
 import threading
-import time
 from _ctypes import CFuncPtr
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 from concurrent.futures import Future, ThreadPoolExecutor
@@ -600,23 +599,33 @@ def monitor_layers(gamescope_baselayer_sequence: list[int]) -> None:  # noqa
                     "Rearranging base layer sequence: %s",
                     prop.value,
                 )
-                window_setup(prop.value)
+                rearranged = [
+                    prop.value[0],
+                    prop.value[3],
+                    prop.value[1],
+                    prop.value[2],
+                ]
+                log.debug("Before: %s", prop.value)
+                log.debug("After: %s", rearranged)
+                set_gamescope_baselayer_order(rearranged)
 
 
 def monitor_windows(  # noqa
     gamescope_baselayer_sequence: list[int], window_client_list: list[str]
 ) -> None:
     log.debug("Monitoring windows")
+    steam_assigned_layer_id = gamescope_baselayer_sequence[-1]
+    log.debug("Steam assigned layer id: %s", steam_assigned_layer_id)
+    log.debug("Type: %s", type(steam_assigned_layer_id))
+
     while True:
         # Check if the window sequence has changed
         current_window_list = get_window_client_ids()
         if current_window_list != window_client_list:
             log.debug("New window sequence")
-            log.debug(
-                "Rearranging base layer sequence: %s",
-                gamescope_baselayer_sequence,
+            set_steam_game_property(
+                current_window_list, steam_assigned_layer_id
             )
-            window_setup(gamescope_baselayer_sequence)
 
 
 def run_command(command: list[AnyPath]) -> int:
