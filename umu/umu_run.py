@@ -593,6 +593,7 @@ def monitor_layers(gamescope_baselayer_sequence: list[int]) -> None:  # noqa
         if event.type == X.PropertyNotify and event.atom == atom:
             prop = root.get_full_property(atom, Xatom.CARDINAL)
 
+            log.debug("Property value for atom '%s': %s", atom, prop.value)
             if prop.value == gamescope_baselayer_sequence:
                 log.debug("New base layer sequence")
                 log.debug(
@@ -608,6 +609,8 @@ def monitor_layers(gamescope_baselayer_sequence: list[int]) -> None:  # noqa
                 log.debug("Before: %s", prop.value)
                 log.debug("After: %s", rearranged)
                 set_gamescope_baselayer_order(rearranged)
+
+        log.debug("Processing events...")
 
 
 def monitor_windows(  # noqa
