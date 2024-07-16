@@ -463,9 +463,9 @@ def set_steam_game_property(  # noqa: D103
     d: display.Display, window_ids: list[str], steam_assigned_layer_id: int
 ) -> None:
     try:
+        log.debug("steam_layer: %s", steam_assigned_layer_id)
         for window_id in window_ids:
             log.debug("window_id: %s", window_id)
-            log.debug("steam_layer: %s", steam_assigned_layer_id)
             try:
                 window = d.create_resource_object("window", int(window_id))
                 window.get_full_property(
@@ -617,7 +617,6 @@ def monitor_windows(  # noqa
     steam_assigned_layer_id: int = gamescope_baselayer_sequence[-1]
 
     log.debug("Monitoring windows")
-    log.debug("Steam Assigned Layer ID: %s", steam_assigned_layer_id)
 
     while True:
         # Check if the window sequence has changed
