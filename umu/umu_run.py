@@ -3,6 +3,7 @@
 import os
 import sys
 import threading
+import time
 from _ctypes import CFuncPtr
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 from concurrent.futures import Future, ThreadPoolExecutor
@@ -610,7 +611,7 @@ def monitor_layers(gamescope_baselayer_sequence: list[int]) -> None:  # noqa
                 log.debug("After: %s", rearranged)
                 set_gamescope_baselayer_order(rearranged)
 
-        log.debug("Processing events...")
+        time.sleep(0.1)
 
 
 def monitor_windows(  # noqa
