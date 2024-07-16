@@ -573,7 +573,7 @@ def window_setup(  # noqa
         set_gamescope_baselayer_order(d_secondary, rearranged_sequence)
 
 
-def monitor_layers(  # noqa
+def monitor_baselayer(  # noqa
     d_secondary: display.Display, gamescope_baselayer_sequence: list[int]
 ) -> None:
     root: Window = d_secondary.screen().root
@@ -701,7 +701,7 @@ def run_command(command: list[AnyPath]) -> int:
 
         # Monitor the baselayer
         baselayer_thread = threading.Thread(
-            target=monitor_layers,
+            target=monitor_baselayer,
             args=(
                 d_secondary,
                 gamescope_baselayer_sequence,
