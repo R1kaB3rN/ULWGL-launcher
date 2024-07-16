@@ -554,6 +554,8 @@ def window_setup(  # noqa
     d_secondary: display.Display,
     gamescope_baselayer_sequence: list[int],
 ) -> None:
+    game_window_ids: list[str] = []
+
     if gamescope_baselayer_sequence:
         # Rearrange the sequence
         rearranged_sequence, steam_assigned_layer_id = (
@@ -561,7 +563,6 @@ def window_setup(  # noqa
         )
 
         # Assign our window a STEAM_GAME id
-        game_window_ids: list[str] = []
         log.debug("Getting game windows")
         while not game_window_ids:
             game_window_ids = get_window_client_ids(d_primary)
