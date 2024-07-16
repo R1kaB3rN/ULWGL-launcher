@@ -467,9 +467,8 @@ def set_steam_game_property(  # noqa: D103
         for window_id in window_ids:
             log.debug("window_id: %s", window_id)
             try:
-                window = d.create_resource_object("window", int(window_id))
-                window.get_full_property(
-                    d.get_atom("STEAM_GAME"), Xatom.CARDINAL
+                window: Window = d.create_resource_object(
+                    "window", int(window_id)
                 )
                 window.change_property(
                     d.get_atom("STEAM_GAME"),
