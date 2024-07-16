@@ -447,11 +447,11 @@ def get_window_client_ids(d: display.Display) -> list[str]:
         root: Window = d.screen().root
         root.change_attributes(event_mask=X.SubstructureNotifyMask)
 
-        log.debug("Waiting for child windows to be populated")
+        log.debug("Waiting for new child windows under window '%s'", root)
         event: AnyEvent = d.next_event()
 
         if event.type == X.CreateNotify:
-            log.debug("Child windows populated")
+            log.debug("Found new child windows")
             return [child.id for child in root.query_tree().children]
     except Exception as e:
         log.exception(e)
