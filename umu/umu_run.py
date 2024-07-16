@@ -447,7 +447,8 @@ def get_window_client_ids(d: display.Display) -> list[str]:
         root: Window = d.screen().root
         root.change_attributes(event_mask=X.SubstructureNotifyMask)
 
-        log.debug("Waiting for new child windows under window '%s'", root)
+        log.debug("Display: %s", d.get_display_name())
+        log.debug("Waiting for new child windows")
         event: AnyEvent = d.next_event()
 
         if event.type == X.CreateNotify:
@@ -462,6 +463,8 @@ def get_window_client_ids(d: display.Display) -> list[str]:
 def set_steam_game_property(  # noqa: D103
     d: display.Display, window_ids: list[str], steam_assigned_layer_id: int
 ) -> None:
+    log.debug("Display: %s", d.get_display_name())
+
     try:
         for window_id in window_ids:
             log.debug("window_id: %s", window_id)
@@ -492,6 +495,8 @@ def set_steam_game_property(  # noqa: D103
 
 
 def get_gamescope_baselayer_order(d: display.Display) -> list[int] | None:  # noqa: D103
+    log.debug("Display: %s", d.get_display_name())
+
     try:
         root: Window = d.screen().root
 
@@ -533,6 +538,8 @@ def rearrange_gamescope_baselayer_order(  # noqa
 def set_gamescope_baselayer_order(  # noqa
     d: display.Display, rearranged: list[int]
 ) -> None:
+    log.debug("Display: %s", d.get_display_name())
+
     try:
         root: Window = d.screen().root
 
