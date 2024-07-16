@@ -541,6 +541,9 @@ def rearrange_gamescope_baselayer_order(  # noqa
 
     # Rearrange the sequence
     rearranged = [sequence[0], sequence[3], sequence[1], sequence[2]]
+    log.debug("Rearranging base layer sequence")
+    log.debug("Before: %s", sequence)
+    log.debug("After: %s", rearranged)
 
     # Return the rearranged sequence and the second element
     return rearranged, rearranged[1]
@@ -588,11 +591,22 @@ def monitor_layers(  # noqa
         # Check if the window sequence has changed:
         current_window_list = get_window_client_ids()
         if current_window_list != window_client_list:
+            log.debug("New window sequence")
+            log.debug(
+                "Rearranging base layer sequence: %s",
+                gamescope_baselayer_sequence,
+            )
             window_setup(gamescope_baselayer_sequence)
 
         # Check if the layer sequence has changed
         current_sequence = get_gamescope_baselayer_order()
         if current_sequence == gamescope_baselayer_sequence:
+            log.debug("New base layer sequence")
+            log.debug("Current sequence: %s", current_sequence)
+            log.debug(
+                "Rearranging base layer sequence: %s",
+                gamescope_baselayer_sequence,
+            )
             window_setup(gamescope_baselayer_sequence)
 
         time.sleep(5)  # Check every 5 seconds
