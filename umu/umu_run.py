@@ -462,9 +462,6 @@ def set_steam_game_property(  # noqa: D103
     d: display.Display, window_ids: list[str], steam_assigned_layer_id: int
 ) -> None:
     try:
-        root = d.screen().root
-        log.debug("Root: %s", root)
-
         for window_id in window_ids:
             log.debug("window_id: %s", window_id)
             log.debug("steam_layer: %s", steam_assigned_layer_id)
