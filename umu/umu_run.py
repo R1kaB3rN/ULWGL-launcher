@@ -581,13 +581,12 @@ def monitor_layers(  # noqa
     d_secondary: display.Display, gamescope_baselayer_sequence: list[int]
 ) -> None:
     log.debug("Monitoring base layers")
-    d = display.Display(":0")
-    root: Window = d.screen().root
-    atom = d.intern_atom("GAMESCOPECTRL_BASELAYER_APPID")
+    root: Window = d_secondary.screen().root
+    atom = d_secondary.intern_atom("GAMESCOPECTRL_BASELAYER_APPID")
     root.change_attributes(event_mask=X.PropertyChangeMask)
 
     while True:
-        event: AnyEvent = d.next_event()
+        event: AnyEvent = d_secondary.next_event()
 
         # Check if the layer sequence has changed to the broken one
         if event.type == X.PropertyNotify and event.atom == atom:
