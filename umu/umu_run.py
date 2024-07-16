@@ -450,7 +450,7 @@ def get_window_client_ids(d: display.Display) -> list[str]:
         log.debug("Waiting for child windows to be populated")
         event: AnyEvent = d.next_event()
 
-        if event.type in (X.CreateNotify, X.DestroyNotify):
+        if event.type == X.CreateNotify:
             log.debug("Child windows populated")
             return [child.id for child in root.query_tree().children]
     except Exception as e:
