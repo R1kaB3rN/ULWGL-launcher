@@ -27,7 +27,9 @@ elif this_path.is_relative_to(Path.home()) and os.environ.get(
 ):
     sys.path.append(os.environ["UMU_CLIENT_RTPATH"])
 
-from Xlib import Xatom, display
+from Xlib import X, Xatom, display
+from Xlib.protocol.event import AnyEvent
+from Xlib.xobject.drawable import Window
 
 from umu.umu_consts import (
     DEBUG_FORMAT,
@@ -442,28 +444,17 @@ def build_command(
 def get_window_client_ids() -> list[str]:
     """Get the list of client windows."""
     d = display.Display(":1")
+    root: Window
     try:
         root = d.screen().root
+        root.change_attributes(event_mask=X.SubstructureNotifyMask)
 
-        max_wait_time = 30  # Maximum wait time in seconds
-        wait_interval = 1  # Interval between checks in seconds
-        elapsed_time = 0
-        window_ids: list[str] = []
+        log.debug("Waiting for child windows to be populated")
+        event: AnyEvent = d.next_event()
+        if event.type in (X.CreateNotify, X.DestroyNotify):
+            log.debug("Child windows populated")
+            return [child.id for child in root.query_tree().children]
 
-        while elapsed_time < max_wait_time:
-            children = root.query_tree().children
-            if children and len(children) > 1:
-                for child in children:
-                    # log.debug("Window ID: %s", child.id)
-                    # log.debug("Window Name: %s", child.get_wm_name())
-                    # log.debug("Window Class: %s", child.get_wm_class())
-                    # log.debug("Window Geometry: %s", child.get_geometry())
-                    # log.debug("Window Attributes: %s", child.get_attributes())
-                    # if "steam_app" in str(child.get_wm_class()):
-                    window_ids.append(child.id)
-                return window_ids
-            time.sleep(wait_interval)
-            elapsed_time += wait_interval
         return []
     finally:
         d.close()
@@ -576,29 +567,24 @@ def window_setup(gamescope_baselayer_sequence: list[int]) -> None:  # noqa
         rearranged_sequence, steam_assigned_layer_id = (
             rearrange_gamescope_baselayer_order(gamescope_baselayer_sequence)
         )
+
         # Assign our window a STEAM_GAME id
-        game_window_ids = get_window_client_ids()
-        if game_window_ids:
-            set_steam_game_property(game_window_ids, steam_assigned_layer_id)
+        game_window_ids: list[str] = []
+        log.debug("Getting game windows")
+        while not game_window_ids:
+            game_window_ids = get_window_client_ids()
+
+        log.debug("Setting property for game windows")
+        set_steam_game_property(game_window_ids, steam_assigned_layer_id)
 
         set_gamescope_baselayer_order(rearranged_sequence)
 
 
 def monitor_layers(  # noqa
-    gamescope_baselayer_sequence: list[int], window_client_list: list[str]
+    gamescope_baselayer_sequence: list[int],
 ) -> None:
     while True:
-        # Check if the window sequence has changed:
-        current_window_list = get_window_client_ids()
-        if current_window_list != window_client_list:
-            log.debug("New window sequence")
-            log.debug(
-                "Rearranging base layer sequence: %s",
-                gamescope_baselayer_sequence,
-            )
-            window_setup(gamescope_baselayer_sequence)
-
-        # Check if the layer sequence has changed
+        # Check if the layer sequence has changed to the broken one
         current_sequence = get_gamescope_baselayer_order()
         if current_sequence == gamescope_baselayer_sequence:
             log.debug("New base layer sequence")
@@ -610,6 +596,21 @@ def monitor_layers(  # noqa
             window_setup(gamescope_baselayer_sequence)
 
         time.sleep(5)  # Check every 5 seconds
+
+
+def monitor_windows(  # noqa
+    gamescope_baselayer_sequence: list[int], window_client_list: list[str]
+) -> None:
+    while True:
+        # Check if the window sequence has changed
+        current_window_list = get_window_client_ids()
+        if current_window_list != window_client_list:
+            log.debug("New window sequence")
+            log.debug(
+                "Rearranging base layer sequence: %s",
+                gamescope_baselayer_sequence,
+            )
+            window_setup(gamescope_baselayer_sequence)
 
 
 def run_command(command: list[AnyPath]) -> int:
@@ -661,14 +662,27 @@ def run_command(command: list[AnyPath]) -> int:
     if gamescope_baselayer_sequence and not os.environ.get("EXE", "").endswith(
         "winetricks"
     ):
-        window_client_list = get_window_client_ids()
+        window_client_list: list[str] = []
+        while not window_client_list:
+            window_client_list = get_window_client_ids()
+
         window_setup(gamescope_baselayer_sequence)
-        monitor_thread = threading.Thread(
-            target=monitor_layers,
+
+        # Monitor the windows
+        window_thread = threading.Thread(
+            target=monitor_windows,
             args=(gamescope_baselayer_sequence, window_client_list),
         )
-        monitor_thread.daemon = True
-        monitor_thread.start()
+        window_thread.daemon = True
+        window_thread.start()
+
+        # Monitor the baselayer
+        baselayer_thread = threading.Thread(
+            target=monitor_layers,
+            args=(gamescope_baselayer_sequence),
+        )
+        baselayer_thread.daemon = True
+        baselayer_thread.start()
 
     ret = proc.wait()
     log.debug("Child %s exited with wait status: %s", proc.pid, ret)
