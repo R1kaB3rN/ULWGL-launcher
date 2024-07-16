@@ -477,7 +477,7 @@ def set_steam_game_property(  # noqa: D103
                     d.intern_atom("STEAM_GAME"),
                     Xatom.CARDINAL,
                     32,
-                    [int(steam_assigned_layer_id)],
+                    [steam_assigned_layer_id],
                 )
                 log.debug(
                     "Successfully set STEAM_GAME property for window ID: %s",
