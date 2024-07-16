@@ -491,8 +491,6 @@ def set_steam_game_property(  # noqa: D103
                 log.exception(e)
     except Exception as e:
         log.exception(e)
-    finally:
-        d.close()
 
 
 def get_gamescope_baselayer_order(d: display.Display) -> list[int] | None:  # noqa: D103
@@ -552,8 +550,6 @@ def set_gamescope_baselayer_order(  # noqa
     except Exception as e:
         log.error("Error setting GAMESCOPECTRL_BASELAYER_APPID property")
         log.exception(e)
-    finally:
-        d.close()
 
 
 def window_setup(  # noqa
