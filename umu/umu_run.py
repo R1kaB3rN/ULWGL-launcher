@@ -576,10 +576,11 @@ def window_setup(  # noqa
 def monitor_layers(  # noqa
     d_secondary: display.Display, gamescope_baselayer_sequence: list[int]
 ) -> None:
-    log.debug("Monitoring base layers")
     root: Window = d_secondary.screen().root
     atom = d_secondary.intern_atom("GAMESCOPECTRL_BASELAYER_APPID")
     root.change_attributes(event_mask=X.PropertyChangeMask)
+
+    log.debug("Monitoring base layers")
 
     while True:
         event: AnyEvent = d_secondary.next_event()
@@ -616,13 +617,13 @@ def monitor_windows(  # noqa
     steam_assigned_layer_id: int = gamescope_baselayer_sequence[-1]
 
     log.debug("Monitoring windows")
-    log.debug("Steam assigned layer id: %s", steam_assigned_layer_id)
+    log.debug("Steam Assigned Layer ID: %s", steam_assigned_layer_id)
 
     while True:
         # Check if the window sequence has changed
         current_window_list = get_window_client_ids(d_primary)
         if current_window_list != window_client_list:
-            log.debug("New window sequence")
+            log.debug("New window sequence detected")
             set_steam_game_property(
                 d_primary, current_window_list, steam_assigned_layer_id
             )
