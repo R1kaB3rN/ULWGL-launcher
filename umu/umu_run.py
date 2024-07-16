@@ -469,10 +469,10 @@ def set_steam_game_property(  # noqa: D103
             try:
                 window = d.create_resource_object("window", int(window_id))
                 window.get_full_property(
-                    d.intern_atom("STEAM_GAME"), Xatom.CARDINAL
+                    d.get_atom("STEAM_GAME"), Xatom.CARDINAL
                 )
                 window.change_property(
-                    d.intern_atom("STEAM_GAME"),
+                    d.get_atom("STEAM_GAME"),
                     Xatom.CARDINAL,
                     32,
                     [steam_assigned_layer_id],
@@ -496,7 +496,7 @@ def get_gamescope_baselayer_order(d: display.Display) -> list[int] | None:  # no
         root: Window = d.screen().root
 
         # Intern the atom for GAMESCOPECTRL_BASELAYER_APPID
-        atom = d.intern_atom("GAMESCOPECTRL_BASELAYER_APPID")
+        atom = d.get_atom("GAMESCOPECTRL_BASELAYER_APPID")
 
         # Get the property value
         prop = root.get_full_property(atom, Xatom.CARDINAL)
@@ -537,7 +537,7 @@ def set_gamescope_baselayer_order(  # noqa
         root: Window = d.screen().root
 
         # Intern the atom for GAMESCOPECTRL_BASELAYER_APPID
-        atom = d.intern_atom("GAMESCOPECTRL_BASELAYER_APPID")
+        atom = d.get_atom("GAMESCOPECTRL_BASELAYER_APPID")
 
         # Set the property value
         root.change_property(atom, Xatom.CARDINAL, 32, rearranged)
@@ -577,7 +577,7 @@ def monitor_layers(  # noqa
     d_secondary: display.Display, gamescope_baselayer_sequence: list[int]
 ) -> None:
     root: Window = d_secondary.screen().root
-    atom = d_secondary.intern_atom("GAMESCOPECTRL_BASELAYER_APPID")
+    atom = d_secondary.get_atom("GAMESCOPECTRL_BASELAYER_APPID")
     root.change_attributes(event_mask=X.PropertyChangeMask)
 
     log.debug("Monitoring base layers")
