@@ -678,8 +678,7 @@ def run_command(command: list[AnyPath]) -> int:
 
         # Monitor the baselayer
         baselayer_thread = threading.Thread(
-            target=monitor_layers,
-            args=(gamescope_baselayer_sequence),
+            target=monitor_layers, args=(gamescope_baselayer_sequence,)
         )
         baselayer_thread.daemon = True
         baselayer_thread.start()
