@@ -580,8 +580,7 @@ def window_setup(gamescope_baselayer_sequence: list[int]) -> None:  # noqa
         set_gamescope_baselayer_order(rearranged_sequence)
 
 
-def monitor_layers(  # noqa
-) -> None:
+def monitor_layers(gamescope_baselayer_sequence: list[int]) -> None:  # noqa
     log.debug("Monitoring base layers")
     d = display.Display(":0")
     root: Window = d.screen().root
@@ -593,13 +592,15 @@ def monitor_layers(  # noqa
 
         # Check if the layer sequence has changed to the broken one
         if event.type == X.PropertyNotify and event.atom == atom:
-            log.debug("New base layer sequence")
             prop = root.get_full_property(atom, Xatom.CARDINAL)
-            log.debug(
-                "Rearranging base layer sequence: %s",
-                prop.value,
-            )
-            window_setup(prop.value)
+
+            if prop.value == gamescope_baselayer_sequence:
+                log.debug("New base layer sequence")
+                log.debug(
+                    "Rearranging base layer sequence: %s",
+                    prop.value,
+                )
+                window_setup(prop.value)
 
 
 def monitor_windows(  # noqa
@@ -682,7 +683,9 @@ def run_command(command: list[AnyPath]) -> int:
         window_thread.start()
 
         # Monitor the baselayer
-        baselayer_thread = threading.Thread(target=monitor_layers)
+        baselayer_thread = threading.Thread(
+            target=monitor_layers, args=(gamescope_baselayer_sequence,)
+        )
         baselayer_thread.daemon = True
         baselayer_thread.start()
 
