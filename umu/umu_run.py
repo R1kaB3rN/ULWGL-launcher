@@ -634,10 +634,10 @@ def run_command(command: list[AnyPath]) -> int:
     prctl: CFuncPtr
     cwd: AnyPath
     proc: Popen
-    d_primary: display.Display | None = None
-    d_secondary: display.Display | None = None
     ret: int = 0
     libc: str = get_libc()
+    d_primary: display.Display | None = None
+    d_secondary: display.Display | None = None
     gamescope_baselayer_sequence: list[int] | None = None
 
     if not command:
@@ -713,7 +713,9 @@ def run_command(command: list[AnyPath]) -> int:
     try:
         ret = proc.wait()
         log.debug("Child %s exited with wait status: %s", proc.pid, ret)
-    except KeyboardInterrupt:
+    except KeyboardInterrupt as e:
+        log.exception(e)
+    finally:
         if d_primary:
             d_primary.close()
         if d_secondary:
