@@ -441,29 +441,26 @@ def build_command(
     return command
 
 
-def get_window_client_ids() -> list[str]:
+def get_window_client_ids(d: display.Display) -> list[str]:
     """Get the list of client windows."""
-    d = display.Display(":1")
-    root: Window
     try:
-        root = d.screen().root
+        root: Window = d.screen().root
         root.change_attributes(event_mask=X.SubstructureNotifyMask)
-
         log.debug("Waiting for child windows to be populated")
         event: AnyEvent = d.next_event()
+
         if event.type in (X.CreateNotify, X.DestroyNotify):
             log.debug("Child windows populated")
             return [child.id for child in root.query_tree().children]
+    except Exception as e:
+        log.exception(e)
 
-        return []
-    finally:
-        d.close()
+    return []
 
 
 def set_steam_game_property(  # noqa: D103
-    window_ids: list[str], steam_assigned_layer_id: int
+    d: display.Display, window_ids: list[str], steam_assigned_layer_id: int
 ) -> None:
-    d = display.Display(":1")
     try:
         root = d.screen().root
         log.debug("Root: %s", root)
@@ -498,8 +495,7 @@ def set_steam_game_property(  # noqa: D103
         d.close()
 
 
-def get_gamescope_baselayer_order() -> list[int] | None:  # noqa: D103
-    d = display.Display(":0")
+def get_gamescope_baselayer_order(d: display.Display) -> list[int] | None:  # noqa: D103
     try:
         root = d.screen().root
 
@@ -516,8 +512,6 @@ def get_gamescope_baselayer_order() -> list[int] | None:  # noqa: D103
     except Exception as e:
         log.error("Error getting GAMESCOPECTRL_BASELAYER_APPID property")
         log.exception(e)
-    finally:
-        d.close()
 
     return None
 
@@ -540,9 +534,10 @@ def rearrange_gamescope_baselayer_order(  # noqa
     return rearranged, rearranged[1]
 
 
-def set_gamescope_baselayer_order(rearranged: list[int]) -> None:  # noqa
+def set_gamescope_baselayer_order(  # noqa
+    d: display.Display, rearranged: list[int]
+) -> None:
     try:
-        d = display.Display(":0")
         root = d.screen().root
 
         # Intern the atom for GAMESCOPECTRL_BASELAYER_APPID
@@ -561,7 +556,11 @@ def set_gamescope_baselayer_order(rearranged: list[int]) -> None:  # noqa
         d.close()
 
 
-def window_setup(gamescope_baselayer_sequence: list[int]) -> None:  # noqa
+def window_setup(  # noqa
+    d_primary: display.Display,
+    d_secondary: display.Display,
+    gamescope_baselayer_sequence: list[int],
+) -> None:
     if gamescope_baselayer_sequence:
         # Rearrange the sequence
         rearranged_sequence, steam_assigned_layer_id = (
@@ -572,15 +571,19 @@ def window_setup(gamescope_baselayer_sequence: list[int]) -> None:  # noqa
         game_window_ids: list[str] = []
         log.debug("Getting game windows")
         while not game_window_ids:
-            game_window_ids = get_window_client_ids()
+            game_window_ids = get_window_client_ids(d_primary)
 
         log.debug("Setting property for game windows")
-        set_steam_game_property(game_window_ids, steam_assigned_layer_id)
+        set_steam_game_property(
+            d_primary, game_window_ids, steam_assigned_layer_id
+        )
 
-        set_gamescope_baselayer_order(rearranged_sequence)
+        set_gamescope_baselayer_order(d_secondary, rearranged_sequence)
 
 
-def monitor_layers(gamescope_baselayer_sequence: list[int]) -> None:  # noqa
+def monitor_layers(  # noqa
+    d_secondary: display.Display, gamescope_baselayer_sequence: list[int]
+) -> None:
     log.debug("Monitoring base layers")
     d = display.Display(":0")
     root: Window = d.screen().root
@@ -609,13 +612,15 @@ def monitor_layers(gamescope_baselayer_sequence: list[int]) -> None:  # noqa
                 ]
                 log.debug("Before: %s", prop.value)
                 log.debug("After: %s", rearranged)
-                set_gamescope_baselayer_order(rearranged)
+                set_gamescope_baselayer_order(d_secondary, rearranged)
 
         time.sleep(0.1)
 
 
 def monitor_windows(  # noqa
-    gamescope_baselayer_sequence: list[int], window_client_list: list[str]
+    d_primary: display.Display,
+    gamescope_baselayer_sequence: list[int],
+    window_client_list: list[str],
 ) -> None:
     log.debug("Monitoring windows")
     steam_assigned_layer_id = gamescope_baselayer_sequence[-1]
@@ -624,11 +629,11 @@ def monitor_windows(  # noqa
 
     while True:
         # Check if the window sequence has changed
-        current_window_list = get_window_client_ids()
+        current_window_list = get_window_client_ids(d_primary)
         if current_window_list != window_client_list:
             log.debug("New window sequence")
             set_steam_game_property(
-                current_window_list, steam_assigned_layer_id
+                d_primary, current_window_list, steam_assigned_layer_id
             )
 
 
@@ -637,6 +642,8 @@ def run_command(command: list[AnyPath]) -> int:
     prctl: CFuncPtr
     cwd: AnyPath
     proc: Popen
+    d_primary: display.Display | None = None
+    d_secondary: display.Display | None = None
     ret: int = 0
     libc: str = get_libc()
     gamescope_baselayer_sequence: list[int] | None = None
@@ -675,35 +682,50 @@ def run_command(command: list[AnyPath]) -> int:
         )
 
     if os.environ.get("XDG_CURRENT_DESKTOP") == "gamescope":
-        gamescope_baselayer_sequence = get_gamescope_baselayer_order()
+        d_secondary = display.Display(":0")
+        gamescope_baselayer_sequence = get_gamescope_baselayer_order(
+            d_secondary
+        )
 
     # Dont do window fuckery if we're not inside gamescope
     if gamescope_baselayer_sequence and not os.environ.get("EXE", "").endswith(
         "winetricks"
     ):
+        d_primary = display.Display(":1")
         window_client_list: list[str] = []
-        while not window_client_list:
-            window_client_list = get_window_client_ids()
 
-        window_setup(gamescope_baselayer_sequence)
+        while not window_client_list:
+            window_client_list = get_window_client_ids(d_primary)
+
+        window_setup(d_primary, d_secondary, gamescope_baselayer_sequence)
 
         # Monitor the windows
         window_thread = threading.Thread(
             target=monitor_windows,
-            args=(gamescope_baselayer_sequence, window_client_list),
+            args=(d_primary, gamescope_baselayer_sequence, window_client_list),
         )
         window_thread.daemon = True
         window_thread.start()
 
         # Monitor the baselayer
         baselayer_thread = threading.Thread(
-            target=monitor_layers, args=(gamescope_baselayer_sequence,)
+            target=monitor_layers,
+            args=(
+                d_secondary,
+                gamescope_baselayer_sequence,
+            ),
         )
         baselayer_thread.daemon = True
         baselayer_thread.start()
 
     ret = proc.wait()
     log.debug("Child %s exited with wait status: %s", proc.pid, ret)
+
+    if d_primary:
+        d_primary.close()
+
+    if d_secondary:
+        d_secondary.close()
 
     return ret
 
