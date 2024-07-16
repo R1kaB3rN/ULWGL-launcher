@@ -454,11 +454,11 @@ def get_window_client_ids() -> list[str]:
             children = root.query_tree().children
             if children and len(children) > 1:
                 for child in children:
-                    log.debug("Window ID: %s", child.id)
-                    log.debug("Window Name: %s", child.get_wm_name())
-                    log.debug("Window Class: %s", child.get_wm_class())
-                    log.debug("Window Geometry: %s", child.get_geometry())
-                    log.debug("Window Attributes: %s", child.get_attributes())
+                    # log.debug("Window ID: %s", child.id)
+                    # log.debug("Window Name: %s", child.get_wm_name())
+                    # log.debug("Window Class: %s", child.get_wm_class())
+                    # log.debug("Window Geometry: %s", child.get_geometry())
+                    # log.debug("Window Attributes: %s", child.get_attributes())
                     # if "steam_app" in str(child.get_wm_class()):
                     window_ids.append(child.id)
                 return window_ids
