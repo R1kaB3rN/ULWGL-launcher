@@ -446,6 +446,7 @@ def get_window_client_ids(d: display.Display) -> list[str]:
     try:
         root: Window = d.screen().root
         root.change_attributes(event_mask=X.SubstructureNotifyMask)
+
         log.debug("Waiting for child windows to be populated")
         event: AnyEvent = d.next_event()
 
@@ -563,15 +564,12 @@ def window_setup(  # noqa
         )
 
         # Assign our window a STEAM_GAME id
-        log.debug("Getting game windows")
         while not game_window_ids:
             game_window_ids = get_window_client_ids(d_primary)
 
-        log.debug("Setting property for game windows")
         set_steam_game_property(
             d_primary, game_window_ids, steam_assigned_layer_id
         )
-
         set_gamescope_baselayer_order(d_secondary, rearranged_sequence)
 
 
@@ -619,7 +617,6 @@ def monitor_windows(  # noqa
 
     log.debug("Monitoring windows")
     log.debug("Steam assigned layer id: %s", steam_assigned_layer_id)
-    log.debug("Type: %s", type(steam_assigned_layer_id))
 
     while True:
         # Check if the window sequence has changed
