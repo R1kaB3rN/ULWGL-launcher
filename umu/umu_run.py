@@ -714,14 +714,14 @@ def run_command(command: list[AnyPath]) -> int:
         baselayer_thread.daemon = True
         baselayer_thread.start()
 
-    ret = proc.wait()
-    log.debug("Child %s exited with wait status: %s", proc.pid, ret)
-
-    if d_primary:
-        d_primary.close()
-
-    if d_secondary:
-        d_secondary.close()
+    try:
+        ret = proc.wait()
+        log.debug("Child %s exited with wait status: %s", proc.pid, ret)
+    except KeyboardInterrupt:
+        if d_primary:
+            d_primary.close()
+        if d_secondary:
+            d_secondary.close()
 
     return ret
 
