@@ -617,8 +617,9 @@ def monitor_windows(  # noqa
     gamescope_baselayer_sequence: list[int],
     window_client_list: list[str],
 ) -> None:
+    steam_assigned_layer_id: int = gamescope_baselayer_sequence[-1]
+
     log.debug("Monitoring windows")
-    steam_assigned_layer_id = gamescope_baselayer_sequence[-1]
     log.debug("Steam assigned layer id: %s", steam_assigned_layer_id)
     log.debug("Type: %s", type(steam_assigned_layer_id))
 
