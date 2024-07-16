@@ -492,7 +492,7 @@ def set_steam_game_property(  # noqa: D103
 
 def get_gamescope_baselayer_order(d: display.Display) -> list[int] | None:  # noqa: D103
     try:
-        root = d.screen().root
+        root: Window = d.screen().root
 
         # Intern the atom for GAMESCOPECTRL_BASELAYER_APPID
         atom = d.intern_atom("GAMESCOPECTRL_BASELAYER_APPID")
@@ -533,7 +533,7 @@ def set_gamescope_baselayer_order(  # noqa
     d: display.Display, rearranged: list[int]
 ) -> None:
     try:
-        root = d.screen().root
+        root: Window = d.screen().root
 
         # Intern the atom for GAMESCOPECTRL_BASELAYER_APPID
         atom = d.intern_atom("GAMESCOPECTRL_BASELAYER_APPID")
