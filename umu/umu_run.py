@@ -709,7 +709,7 @@ def run_command(command: list[AnyPath]) -> int:
         ret = proc.wait()
         log.debug("Child %s exited with wait status: %s", proc.pid, ret)
     except KeyboardInterrupt as e:
-        log.exception(e)
+        raise e
     finally:
         if d_primary:
             d_primary.close()
