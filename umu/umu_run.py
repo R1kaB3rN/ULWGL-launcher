@@ -522,8 +522,7 @@ def rearrange_gamescope_baselayer_order(  # noqa
     # Rearrange the sequence
     rearranged = [sequence[0], sequence[3], sequence[1], sequence[2]]
     log.debug("Rearranging base layer sequence")
-    log.debug("Before: %s", sequence)
-    log.debug("After: %s", rearranged)
+    log.debug("'%s' -> '%s'", sequence, rearranged)
 
     # Return the rearranged sequence and the second element
     return rearranged, rearranged[1]
@@ -591,18 +590,14 @@ def monitor_baselayer(  # noqa
             log.debug("Property value for atom '%s': %s", atom, prop.value)
             if prop.value == gamescope_baselayer_sequence:
                 log.debug("Broken base layer sequence detected")
-                log.debug(
-                    "Rearranging base layer sequence: %s",
-                    prop.value,
-                )
+                log.debug("Rearranging base layer sequence")
                 rearranged = [
                     prop.value[0],
                     prop.value[3],
                     prop.value[1],
                     prop.value[2],
                 ]
-                log.debug("Before: %s", prop.value)
-                log.debug("After: %s", rearranged)
+                log.debug("'%s' -> '%s'", prop.value, rearranged)
                 set_gamescope_baselayer_order(d_secondary, rearranged)
 
         time.sleep(0.1)
