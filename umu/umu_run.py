@@ -571,9 +571,10 @@ def window_setup(  # noqa
         set_gamescope_baselayer_order(d_secondary, rearranged_sequence)
 
 
-def monitor_baselayer(  # noqa
+def monitor_baselayer(
     d_secondary: display.Display, gamescope_baselayer_sequence: list[int]
 ) -> None:
+    """Monitor for broken gamescope baselayer sequences."""
     root: Window = d_secondary.screen().root
     atom = d_secondary.get_atom("GAMESCOPECTRL_BASELAYER_APPID")
     root.change_attributes(event_mask=X.PropertyChangeMask)
@@ -603,11 +604,12 @@ def monitor_baselayer(  # noqa
         time.sleep(0.1)
 
 
-def monitor_windows(  # noqa
+def monitor_windows(
     d_primary: display.Display,
     gamescope_baselayer_sequence: list[int],
     window_client_list: list[str],
 ) -> None:
+    """Monitor for new windows and assign them Steam's layer ID."""
     steam_assigned_layer_id: int = gamescope_baselayer_sequence[-1]
 
     log.debug("Monitoring windows")
