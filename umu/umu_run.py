@@ -497,8 +497,10 @@ def set_gamescope_baselayer_order(
 def get_steam_layer_id(sequence: list[int]) -> int:
     """Get the Steam layer ID from a base layer seq."""
     steam_layer_id: int = 0
+    base_layer: list[int] = list(sequence)
 
-    for val in sequence:
+    log.debug("Sequence: %s", base_layer)
+    for val in base_layer:
         if val != sequence[0] and val != STEAM_WINDOW_ID:
             log.debug("Found potential Steam layer ID: %s", val)
             steam_layer_id = val
