@@ -500,6 +500,7 @@ def get_steam_layer_id(sequence: list[int]) -> int:
 
     for val in sequence:
         if val != sequence[0] and val != STEAM_WINDOW_ID:
+            log.debug("Found potential Steam layer ID: %s", val)
             steam_layer_id = val
 
     return steam_layer_id
