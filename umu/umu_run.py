@@ -467,11 +467,10 @@ def get_steam_layer_id() -> int:
 
 
 def monitor_windows(
-    d_secondary: display.Display,
+    d_secondary: display.Display, steam_assigned_layer_id: int
 ) -> None:
     """Monitor for new windows and assign them Steam's layer ID."""
     window_ids: set[str] | None = None
-    steam_assigned_layer_id: int = get_steam_layer_id()
 
     while not window_ids:
         window_ids = get_window_client_ids(d_secondary)
@@ -507,6 +506,7 @@ def run_in_steammode(proc: Popen) -> int:
     """
     # GAMESCOPECTRL_BASELAYER_APPID value on the primary's window
     gamescope_baselayer_sequence: list[int] | None = None
+    steam_layer_id: int
 
     # Currently, steamos creates two xwayland servers at :0 and :1
     # Despite the socket for display :0 being hidden at /tmp/.x11-unix in
@@ -521,10 +521,12 @@ def run_in_steammode(proc: Popen) -> int:
             gamescope_baselayer_sequence = get_gamescope_baselayer_order(
                 d_primary
             )
+            steam_layer_id = get_steam_layer_id()
 
             # Dont do window fuckery if we're not inside gamescope
             if (
                 gamescope_baselayer_sequence
+                and steam_layer_id
                 and os.environ.get("PROTON_VERB") == "waitforexitandrun"
             ):
                 # Note: If the executable is one that exists in the WINE prefix
@@ -537,7 +539,7 @@ def run_in_steammode(proc: Popen) -> int:
                 # Monitor for new windows
                 window_thread = threading.Thread(
                     target=monitor_windows,
-                    args=(d_secondary,),
+                    args=(d_secondary, steam_layer_id),
                 )
                 window_thread.daemon = True
                 window_thread.start()
