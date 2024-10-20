@@ -3,7 +3,6 @@
 import os
 import sys
 import threading
-import time
 import zipfile
 from _ctypes import CFuncPtr
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
@@ -35,7 +34,6 @@ from umu.umu_consts import (
     PR_SET_CHILD_SUBREAPER,
     PROTON_VERBS,
     STEAM_COMPAT,
-    STEAM_WINDOW_ID,
     UMU_LOCAL,
 )
 from umu.umu_log import CustomFormatter, console_handler, log
