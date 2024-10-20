@@ -526,7 +526,7 @@ def run_in_steammode(proc: Popen) -> int:
             # Dont do window fuckery if we're not inside gamescope
             if (
                 gamescope_baselayer_sequence
-                and steam_layer_id
+                and steam_layer_id in gamescope_baselayer_sequence
                 and os.environ.get("PROTON_VERB") == "waitforexitandrun"
             ):
                 # Note: If the executable is one that exists in the WINE prefix
