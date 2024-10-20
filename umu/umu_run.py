@@ -452,46 +452,7 @@ def get_gamescope_baselayer_order(
     return None
 
 
-def rearrange_gamescope_baselayer_order(
-    sequence: list[int],
-) -> tuple[list[int], int] | None:
-    """Rearrange a gamescope base layer sequence retrieved from a window."""
-    rearranged: list[int]
-    steam_layer_id: int = get_steam_layer_id(sequence)
-
-    log.debug("Base layer sequence: %s", sequence)
-
-    if not steam_layer_id:
-        return None
-
-    # FIXME: This is brittle. Implement a better rearrangement algorithm
-    # that isolates the layer id while preserving the correct layer order
-    # because Steam has changed GAMESCOPECTRL_BASELAYER_APPID in the past
-    # so the values may be more/less than 3 elements.
-    rearranged = [sequence[0], steam_layer_id, STEAM_WINDOW_ID]
-    log.debug("Rearranging base layer sequence")
-    log.debug("'%s' -> '%s'", sequence, rearranged)
-
-    return rearranged, steam_layer_id
-
-
-def set_gamescope_baselayer_order(
-    d: display.Display, rearranged: list[int]
-) -> None:
-    """Set a new gamescope base layer seq on the primary root window."""
-    try:
-        # Intern the atom for GAMESCOPECTRL_BASELAYER_APPID
-        atom = d.get_atom("GAMESCOPECTRL_BASELAYER_APPID")
-
-        # Set the property value
-        d.screen().root.change_property(atom, Xatom.CARDINAL, 32, rearranged)
-        log.debug(
-            "Successfully set GAMESCOPECTRL_BASELAYER_APPID property: %s",
-            ", ".join(map(str, rearranged)),
         )
-    except Exception as e:
-        log.error("Error setting GAMESCOPECTRL_BASELAYER_APPID property")
-        log.exception(e)
 
 
 def get_steam_layer_id(sequence: list[int]) -> int:
