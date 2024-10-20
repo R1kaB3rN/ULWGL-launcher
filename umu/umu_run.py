@@ -635,12 +635,12 @@ def run_in_steammode(proc: Popen) -> int:
                 window_thread.start()
 
                 # Monitor for broken baselayers
-                baselayer_thread = threading.Thread(
-                    target=monitor_baselayer,
-                    args=(d_primary, gamescope_baselayer_sequence),
-                )
-                baselayer_thread.daemon = True
-                baselayer_thread.start()
+                # baselayer_thread = threading.Thread(
+                #     target=monitor_baselayer,
+                #     args=(d_primary, gamescope_baselayer_sequence),
+                # )
+                # baselayer_thread.daemon = True
+                # baselayer_thread.start()
             return proc.wait()
     except DisplayConnectionError as e:
         # Case where steamos changed its display outputs as we're currently
