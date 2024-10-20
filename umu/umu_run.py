@@ -505,53 +505,6 @@ def get_steam_layer_id(sequence: list[int]) -> int:
     return steam_layer_id
 
 
-def monitor_baselayer(
-    d_primary: display.Display,
-    gamescope_baselayer_sequence: list[int],
-) -> None:
-    """Monitor for broken gamescope baselayer sequences."""
-    root_primary: Window = d_primary.screen().root
-    rearranged_gamescope_baselayer: tuple[list[int], int] | None = None
-    atom = d_primary.get_atom("GAMESCOPECTRL_BASELAYER_APPID")
-    root_primary.change_attributes(event_mask=X.PropertyChangeMask)
-
-    # Get a rearranged sequence from GAMESCOPECTRL_BASELAYER_APPID.
-    rearranged_gamescope_baselayer = rearrange_gamescope_baselayer_order(
-        gamescope_baselayer_sequence
-    )
-
-    # Set the rearranged sequence from GAMESCOPECTRL_BASELAYER_APPID.
-    if rearranged_gamescope_baselayer:
-        rearranged, _ = rearranged_gamescope_baselayer
-        set_gamescope_baselayer_order(d_primary, rearranged)
-        rearranged_gamescope_baselayer = None
-
-    log.debug("Monitoring base layers")
-
-    while True:
-        event: Event = d_primary.next_event()
-        prop: GetProperty | None = None
-
-        if event.type == X.PropertyNotify and event.atom == atom:
-            prop = root_primary.get_full_property(atom, Xatom.CARDINAL)
-
-        # Check if the layer sequence has changed to the broken one
-        if prop and prop.value == gamescope_baselayer_sequence:
-            log.debug("Broken base layer sequence detected")
-            log.debug("Property value for atom '%s': %s", atom, prop.value)
-            rearranged_gamescope_baselayer = (
-                rearrange_gamescope_baselayer_order(prop.value)
-            )
-
-        if rearranged_gamescope_baselayer:
-            rearranged, _ = rearranged_gamescope_baselayer
-            set_gamescope_baselayer_order(d_primary, rearranged)
-            rearranged_gamescope_baselayer = None
-            continue
-
-        time.sleep(0.1)
-
-
 def monitor_windows(
     d_secondary: display.Display,
     gamescope_baselayer_sequence: list[int],
@@ -633,14 +586,6 @@ def run_in_steammode(proc: Popen) -> int:
                 )
                 window_thread.daemon = True
                 window_thread.start()
-
-                # Monitor for broken baselayers
-                # baselayer_thread = threading.Thread(
-                #     target=monitor_baselayer,
-                #     args=(d_primary, gamescope_baselayer_sequence),
-                # )
-                # baselayer_thread.daemon = True
-                # baselayer_thread.start()
             return proc.wait()
     except DisplayConnectionError as e:
         # Case where steamos changed its display outputs as we're currently
