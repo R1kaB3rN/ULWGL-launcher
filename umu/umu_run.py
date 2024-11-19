@@ -737,18 +737,6 @@ def run_command(command: tuple[Path | str, ...]) -> int:
     prctl_ret: int = 0
     libc: str = get_libc()
 
-    is_gamescope_session: bool = (
-        os.environ.get("XDG_CURRENT_DESKTOP") == "gamescope"
-        or os.environ.get("XDG_SESSION_DESKTOP") == "gamescope"
-    )
-
-    # Note: STEAM_MULTIPLE_XWAYLANDS is steam mode specific and is
-    # documented to be a legacy env var.
-    is_steammode: bool = (
-        is_gamescope_session
-        and os.environ.get("STEAM_MULTIPLE_XWAYLANDS") == "1"
-    )
-
     if not command:
         err: str = f"Command list is empty or None: {command}"
         raise ValueError(err)
@@ -776,7 +764,7 @@ def run_command(command: tuple[Path | str, ...]) -> int:
         start_new_session=True,
         cwd=cwd,
     ) as proc:
-        ret = run_in_steammode(proc) if is_steammode else proc.wait()
+        ret = proc.wait()
         log.debug("Child %s exited with wait status: %s", proc.pid, ret)
 
     return ret
