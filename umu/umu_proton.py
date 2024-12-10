@@ -330,8 +330,6 @@ def _get_latest(
     # Return if the latest Proton is already installed
     if steam_compat.joinpath(proton).is_dir():
         log.info("%s is up to date", version)
-        steam_compat.joinpath("UMU-Latest").unlink(missing_ok=True)
-        steam_compat.joinpath("UMU-Latest").symlink_to(proton)
         os.environ["PROTONPATH"] = str(steam_compat.joinpath(proton))
         env["PROTONPATH"] = os.environ["PROTONPATH"]
         return env
@@ -464,12 +462,6 @@ def _install_proton(
         steam_compat,
     )
     move(cache.joinpath(tarball.removesuffix(".tar.gz")), steam_compat)
-
-    steam_compat.joinpath("UMU-Latest").unlink(missing_ok=True)
-    steam_compat.joinpath("UMU-Latest").symlink_to(
-        tarball.removesuffix(".tar.gz")
-    )
-    log.debug("Linking: UMU-Latest -> %s", tarball.removesuffix(".tar.gz"))
 
     if future:
         future.result()
