@@ -265,7 +265,7 @@ def _get_from_steamcompat(
     """
     version: str = (
         "GE-Proton"
-        if os.environ.get("PROTONPATH") == "GE-Proton"
+        if os.environ.get("PROTONPATH") in {"GE-Proton", "GE-Latest"}
         else "UMU-Proton"
     )
 
