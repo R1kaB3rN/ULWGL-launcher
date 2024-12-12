@@ -551,10 +551,7 @@ def _get_delta(
         log.debug("Acquired lock '%s'", lock.lock_file)
 
         # Validate the integrity of the embedded public key
-        if (
-            sha512(cbor.get("public_key")).hexdigest()
-            not in UMU_SSH_PUBLIC_KEYS
-        ):
+        if sha512(cbor["public_key"]).hexdigest() not in UMU_SSH_PUBLIC_KEYS:
             # OWC maintainer forgot to add digest to whitelist, a different
             # public key was accidentally used or patch was created by a
             # 3rd party
@@ -566,12 +563,11 @@ def _get_delta(
 
         # With the public key, verify the signature and data
         ssh_public_key = ed25519.Ed25519PublicKey.from_public_bytes(
-            cbor.get("public_key")
+            cbor["public_key"]
         )
         try:
             ssh_public_key.verify(
-                cbor.get("signature"),
-                dumps(cbor.get("contents"), canonical=True),
+                cbor["signature"], dumps(cbor["contents"], canonical=True)
             )
         except InvalidSignature:
             # Patch file data was tampered
