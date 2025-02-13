@@ -36,7 +36,6 @@ jobs:
 
     - name: Setup dh_make quilt files
       run: |
-        sed -re 's|(umu-launcher \()[1-9.]+(-1\).*$)|\1${{ inputs.version }}\2|' -i ./debian/changelog
         LOGNAME=root dh_make --createorig -y -l -p umu-launcher_${{ inputs.version }} || true
 
     - name: Install apt build dependencies
